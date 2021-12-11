@@ -7,110 +7,111 @@ from pprint import pprint
 
 from pandas.core.frame import DataFrame
 
-folderpath = r".\extracted" 
+folderpath = r".\csv_files" 
 filepaths  = [os.path.join(folderpath, name) for name in os.listdir(folderpath)]
 
 
-for path in filepaths:
+
+# line_count = 0
+
+
+# print(type(path))
+company_set = set()
+for file in filepaths:
+    data = []
+    with open(file, 'r') as infile:
+        # print(infile)
+        
+        df = pd.read_csv(infile, delimiter = ',', skiprows=2, skipfooter=17, engine='python')
+        i=1
+        for i in df.count():
+            val = df.iloc[:,[1,6]]
+           
+        data = val.values
+        # print(data)
+        company = []
+        for i in range(len(data)):
+            company.append(data[i][0])
+
+        weightage = []
+        for i in range(len(data)):
+            weightage.append(data[i][1]) 
+        # print(weightage)
+
+        for company_name in company:
+            company_set.add(company_name)
+        
+
+        # dict_final = {company: "", weightage: []}
+        # list_final = []
+
+dict_final = {}
+list_final = []
+list_weight = []
+dict_weight = {}
+
+for company_name in company_set:
+    dict_final['company'] = company_name
+    dict_final['weightage'] = list_weight
+    # dict = {company: company_name, weightage: []}
+    list_final.append(dict_final)
+            
+
+for file in filepaths:
     try:
-        # f = path.split('_')[-1]
-        
-        csvpath= [os.path.join(path, name) for name in os.listdir(path)]
-        line_count = 0
-        data = []
-        
-        # print(type(path))
-        company_set = set()
-        for file in csvpath:
+    # print(file)
+        with open(file, 'r') as infile:
+            df = pd.read_csv(infile, delimiter = ',', skiprows=2, skipfooter=17, engine='python')
             
-            with open(file, 'r') as infile:
-                # print(infile)
-                
-                df = pd.read_csv(infile, delimiter = ',', skiprows=2, skipfooter=17, engine='python')
-                i=1
-                for i in df.count():
-                    val = df.iloc[:,[1,6]]
-                    # company = df.iloc[:]
-                # print(values)
-                # length = len(val)
-                data = val.values
-                # print(data)
-                company = []
-                for i in range(len(data)):
-                    company.append(data[i][0])
-
-                weightage = []
-                for i in range(len(data)):
-                    weightage.append(data[i][1]) 
-                # print(weightage)
-
-                for company_name in company:
-                    company_set.add(company_name)
-                
-        
-                # dict_final = {company: "", weightage: []}
-                # list_final = []
-
-        dict_final = {}
-        list_final = []
-        list_weight = []
-
-        for company_name in company_set:
-            dict_final['company'] = company_name
-            dict_final['weightage'] = list_weight
-            # dict = {company: company_name, weightage: []}
-            list_final.append(dict_final.copy())
-                   
-        for file in csvpath:
-            # print(file)
-            f = file.split("\\")[-2]
-            f1 = f.split('_')[-1]
-            f2 = f1[0:5]
+            for i in df.count():
+                val = df.iloc[:,[1,6]]
             
-            with open(file, 'r') as infile:
-                df = pd.read_csv(infile, delimiter = ',', skiprows=2, skipfooter=17, engine='python')
+            data = val.values
+            
+            for row in data:
+                company_name = row[0]
+                weight = row[1]
                 
-                for i in df.count():
-                    val = df.iloc[:,[1,6]]
+                month = (file.split('\\')[-1])[0:5]
+                # pprint(weight+"    "+month)
+                dict_weight = {month:weight}
+                # print(month)
+                index = 0
+                # i = 0
+                # pprint(list_final)
+                for i, item in enumerate(list_final):
+                    if item["company"] == company_name:
+                        # print("matched")
+                        index = i
+                        # print(i)
+                        break
+                # print(index)
+                    # pprint(item) 
+                # pprint(company_name)
+                # index = i, for i, item in enumerate(list_final) if item["company"] == company_name
+                # for item in list_final:
+                #     if
                 
-                data = val.values
-                
-                for row in data:
-                    company_name = row[0]
-                    weightage = row[1]
-
-                   
-                    
-                    
-                    index = next( i for i, item in enumerate(list_final) if item["company"] == company_name )
-
-                    list_final[index]["weightage"].append({f2: weightage})
-            # print(f2)
-                    # pprint(row)
-                # for i in range(len(data)):
-                #     # company_set.app(company[i])
-                #     if company[i] not in dic_final.values():
-                #         dic_final['company'] = company[i]
-                #         # list_weight.append(dic_weight)
-                #         dic_final['weightage'] = list_weight
-                #     list_final.append(dic_final.copy())
-              
-        pprint(list_final)
-        # print("\t")
+                # dict_weight[month] = weight
+                # print("processing_1")
+                pprint(dict_weight)
+                # list_weight.append(dict_weight)
+                # temp_dict = list_final[index]
+                # # print("processing_2")
+                # temp_dict['weightage'].append(dict_weight)
+                # # print("processing_3")
+                # list_final[index] = temp_dict
+                # list_final[index]["weightage"].append(dict_weight)
+        # print(file)
+            
         
-                    
-                    # print(list_final)
-            # print("")
-        df4 = pd.json_normalize(list_final, meta=['company'], record_path=['weightage'])
-        # print(df4)
-                    
     except Exception as err:
-        traceback.print_tb(err.__traceback__)
+        # traceback.print_tb(err.__traceback__)
+        # print("error in file path " + path)
         continue
-    # print(company_set)
-# pprint(list_final) 
-    # pprint(len(list_final))
+# print("success")
+# pprint(list_final)
+    df4 = pd.json_normalize(list_final, meta=['company'], record_path=['weightage'])
+# print(df4)
+            
 
-
-
-# check file name...why is it repeating.
